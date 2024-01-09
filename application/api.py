@@ -1,4 +1,4 @@
-from flask_restful import Resource, fields, marshal_with, marshal, reqparse
+from flask_restful import Resource, fields, marshal, reqparse
 from flask_security import current_user, auth_required, roles_required, roles_accepted, hash_password
 from application.models import *
 from .database import db
@@ -88,6 +88,10 @@ user_parser.add_argument('role')
 class UserAPI(Resource):
     @auth_required('token')
     def get(self):
+        role = current_user.roles[0].name
+        if role == 'admin':
+            pending_managers = User.query.filter_by(active=False).all()
+            return marshal(pending_managers, user_fields), 200
         user = User.query.filter_by(email=current_user.email).first()
         if not user:
             return {"message":"Invalid email"}, 404
@@ -116,6 +120,15 @@ class UserAPI(Resource):
         db.session.add(user)
         db.session.commit()
         return marshal(user, user_fields), 201
+    
+    @roles_required('admin')
+    def put(self, id):
+        user = User.query.get(id)
+        if not user:
+            return {"message":"Invalid ID"}, 404
+        user.active = 1
+        db.session.commit()
+        return {"message":"Manager Signup approval done"}, 200
     
 class CategoryAPI(Resource):
     def get(self, id=None):
@@ -270,21 +283,22 @@ class ProductAPI(Resource):
         return marshal(product, product_fields), 200        
 
 class PurchaseAPI(Resource):
+    @roles_required('user')
     def get(self):
         purchases = Purchase.query.filter_by(user_id=current_user.id).all()
         return marshal(purchases, purchase_fields), 200
-        
+    
+    @roles_required('user')
     def post(self):
         args = purchase_parser.parse_args()
-        user_id = args.get('user_id',None)
+        user_id = current_user.id
         product_id = args.get('product_id',None)
         quantity = args.get('quantity',None)
         if any(field is None for field in (user_id, product_id, quantity)):
             return {"message":"One or more fields are empty"}, 400
-        user = User.query.get(user_id)
         product = Product.query.get(product_id)
-        if not user or not product:
-            return {"message":"User or Product not exists"}, 400
+        if not product:
+            return {"message":"Product not exists"}, 400
         if product.availability < int(quantity):
             return {"message":"The selected quantity is more than the available stock"}, 400
         purchase = Purchase(user_id=user_id, product_id=product_id, quantity=quantity)
@@ -293,21 +307,22 @@ class PurchaseAPI(Resource):
         return marshal(purchase, purchase_fields), 201
     
 class CartAPI(Resource):
+    @roles_required('user')
     def get(self):
         carts = Cart.query.filter_by(user_id=current_user.id).all()
         return marshal(carts, cart_fields), 200
     
+    @roles_required('user')
     def post(self):
         args = purchase_parser.parse_args()
-        user_id = args.get('user_id',None)
+        user_id = current_user.id
         product_id = args.get('product_id',None)
         quantity = args.get('quantity',None)
-        if any(field is None for field in (user_id, product_id, quantity)):
+        if any(field is None for field in (product_id, quantity)):
             return {"message":"One or more fields are empty"}, 400
-        user = User.query.get(user_id)
         product = Product.query.get(product_id)
-        if not user or not product:
-            return {"message":"User or Product not exists"}, 400
+        if not product:
+            return {"message":"Product not exists"}, 400
         if product.availability < int(quantity):
             return {"message":"The selected quantity is more than the available stock"}, 400
         cart = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
@@ -315,6 +330,7 @@ class CartAPI(Resource):
         db.session.commit()
         return marshal(cart, cart_fields), 201
     
+    @roles_required('user')
     def delete(self, id):
         cart = Cart.query.get(id)
         if not cart:
@@ -323,6 +339,7 @@ class CartAPI(Resource):
         db.session.commit()
         return {"message":"Item deleted successfully from the cart"}, 200
     
+    @roles_required('user')
     def put(self, id):
         cart = Cart.query.get(id)
         if not cart:
