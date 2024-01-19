@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_security import Security, SQLAlchemyUserDatastore, hash_password
 from flask_restful import Api
+from flask_cors import CORS, cross_origin
 from application.config import LocalDevelopmentConfig
 from application.database import db
 from application.models import *
@@ -38,6 +39,9 @@ def create_app():
 
     api = Api(app)
     app.app_context().push()
+
+    CORS(app, supports_credentials=True)
+    app.config['CORS_HEADERS'] = 'application/json'
 
     return app, api
 

@@ -1,1 +1,5 @@
 /venv
+
+/db_directory
+
+/application/__pycache__
