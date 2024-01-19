@@ -5,10 +5,14 @@ from flask_cors import CORS, cross_origin
 from application.config import LocalDevelopmentConfig
 from application.database import db
 from application.models import *
+from flask_caching import Cache
+from application import workers
 import random, string
 
 app = None
 api = None
+celery = None
+cache = None            
 
 # Create app
 def create_app():
@@ -39,13 +43,23 @@ def create_app():
 
     api = Api(app)
     app.app_context().push()
+    celery = workers.celery
+
+    # Update with configuration
+    celery.conf.update(
+        broker_url = app.config["CELERY_BROKER_URL"],
+        result_backend = app.config["CELERY_RESULT_BACKEND"]
+    )
+
+    celery.Task = workers.ContextTask
 
     CORS(app, supports_credentials=True)
     app.config['CORS_HEADERS'] = 'application/json'
+    cache = Cache(app)
+    app.app_context().push()
+    return app, api, celery, cache
 
-    return app, api
-
-app,api = create_app()
+app,api,celery, cache = create_app()
 
 from application.controllers import *
 from application.api import *
