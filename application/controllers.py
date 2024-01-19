@@ -1,6 +1,12 @@
 from flask import render_template_string
 from flask import current_app as app
 from flask_security import auth_required, current_user, roles_required
+from application import tasks
+
+@app.route('/export',methods=['GET', 'POST'])
+def export():
+    job = tasks.export.delay()
+    return str(job), 200
 
 # Views
 @app.route("/")

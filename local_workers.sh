@@ -15,5 +15,6 @@ fi
 # Activate virtual env
 . .env/bin/activate
 export ENV=development
-celery -A main.celery worker -l info
+# celery -A main.celery worker -l info
+celery -A main.celery worker -l info -P solo
 deactivate

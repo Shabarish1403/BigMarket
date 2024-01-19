@@ -8,9 +8,9 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False
     SECURITY_TOKEN_AUTHENTICATION_HEADER = "Authentication-Token"
-    CELERY_BROKER_URL = "redis://127.0.0.1:6789/1"
-    CELERY_RESULT_BACKEND = "redis://127.0.0.1:6789/2"
-    REDIS_URL = "redis://127.0.0.1:6789"
+    CELERY_BROKER_URL = "redis://127.0.0.1:6969/1"
+    CELERY_RESULT_BACKEND = "redis://127.0.0.1:6969/2"
+    REDIS_URL = "redis://127.0.0.1:6969"
     CACHE_TYPE = "RedisCache"
     CACHE_DEFAULT_TIMEOUT = 300
     CACHE_REDIS_HOST = "127.0.0.1"
@@ -33,9 +33,9 @@ class LocalDevelopmentConfig(Config):
     SECURITY_SEND_REGISTER_EMAIL = False
     SECURITY_UNAUTHORIZED_VIEW = None
     USER_EMAIL_SENDER_EMAIL = 'shabarish.14b@gmail.com'
-    CELERY_BROKER_URL = "redis://127.0.0.1:6789/1"
-    CELERY_RESULT_BACKEND = "redis://127.0.0.1:6789/2"
-    REDIS_URL = "redis://127.0.0.1:6789"
+    CELERY_BROKER_URL = "redis://127.0.0.1:6969/1"
+    CELERY_RESULT_BACKEND = "redis://127.0.0.1:6969/2"
+    REDIS_URL = "redis://127.0.0.1:6969"
     CACHE_TYPE = "RedisCache"
     CACHE_DEFAULT_TIMEOUT = 300
     CACHE_REDIS_HOST = "127.0.0.1"
