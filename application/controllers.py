@@ -5,7 +5,7 @@ from application import tasks
 
 @app.route('/export',methods=['GET', 'POST'])
 def export():
-    job = tasks.export.delay()
+    job = tasks.monthly_report.delay()
     return str(job), 200
 
 # Views
