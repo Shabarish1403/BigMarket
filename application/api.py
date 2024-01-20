@@ -34,7 +34,7 @@ purchase_parser.add_argument('purchased_at')
 product_fields = {
     'id': fields.Integer,
     'name': fields.String,
-    'expiry': fields.DateTime,
+    'expiry': fields.DateTime(dt_format='iso8601'),
     'price': fields.Float,
     'unit': fields.String,
     'availability': fields.Integer,
@@ -83,6 +83,7 @@ user_parser.add_argument('email')
 user_parser.add_argument('username')
 user_parser.add_argument('name')
 user_parser.add_argument('password')
+user_parser.add_argument('confirmPassword')
 user_parser.add_argument('role')
 
 class UserAPI(Resource):
@@ -102,8 +103,12 @@ class UserAPI(Resource):
         email = args.get('email',None)
         username = args.get('username',None)
         name = args.get('name',None)
-        password = hash_password(args.get('password',None))
+        password = args.get('password',None)
+        confirmPassword = args.get('confirmPassword',None)
         role = args.get('role',None)
+        print(role)
+        if password != confirmPassword:
+            return {"message":"Password does not match"}, 400
         if role == 'manager':
             active = 0
         else:
@@ -114,7 +119,7 @@ class UserAPI(Resource):
         user_exist = User.query.filter_by(email=email).first()
         if user_exist:
             return {"message":"Email already exists"},400
-        user = User(email=email, username=username, name=name, password=password, active=active, fs_uniquifier=fs_uniquifier)
+        user = User(email=email, username=username, name=name, password=hash_password(password), active=active, fs_uniquifier=fs_uniquifier)
         user_role = Role.query.filter_by(name=role).first()
         user.roles.append(user_role)
         db.session.add(user)
@@ -132,10 +137,10 @@ class UserAPI(Resource):
     
 class CategoryAPI(Resource):
     def get(self, id=None):
-        role = current_user.roles[0].name
-        if role == 'admin' and id is None:
-            categories = Category.query.filter_by(active=False).all()
-            return marshal(categories, category_fields), 200
+        # role = current_user.roles[0].name
+        # if role == 'admin' and id is None:
+        #     categories = Category.query.filter_by(active=False).all()
+        #     return marshal(categories, category_fields), 200
         if id is None:
             categories = Category.query.filter_by(active=True).all()
             return marshal(categories, category_fields), 200
@@ -227,6 +232,7 @@ class ProductAPI(Resource):
         args = product_parser.parse_args()
         name = args.get('name',None)
         expiry = datetime.strptime(args.get('expiry',None),'%d/%m/%Y')
+        # expiry = args.get('expiry',None)
         price = args.get('price',None)
         unit = args.get('unit',None)
         availability = args.get('availability',None)
