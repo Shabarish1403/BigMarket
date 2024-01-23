@@ -38,6 +38,7 @@ product_fields = {
     'price': fields.Float,
     'unit': fields.String,
     'availability': fields.Integer,
+    'quantity': fields.Integer,
     'category_id': fields.Integer,
     'purchases': fields.Nested(purchase_fields),
     'carts': fields.Nested(cart_fields)
@@ -319,10 +320,10 @@ class CartAPI(Resource):
         return marshal(carts, cart_fields), 200
     
     @roles_required('user')
-    def post(self):
+    def post(self, product_id):
         args = purchase_parser.parse_args()
         user_id = current_user.id
-        product_id = args.get('product_id',None)
+        # product_id = args.get('product_id',None)
         quantity = args.get('quantity',None)
         if any(field is None for field in (product_id, quantity)):
             return {"message":"One or more fields are empty"}, 400
@@ -331,10 +332,15 @@ class CartAPI(Resource):
             return {"message":"Product not exists"}, 400
         if product.availability < int(quantity):
             return {"message":"The selected quantity is more than the available stock"}, 400
-        cart = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
-        db.session.add(cart)
+        cart_exist = Cart.query.filter_by(user_id=user_id,product_id=product_id).first()
+        if cart_exist:
+            cart_exist.quantity += int(quantity)
+        else:
+            cart = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
+            db.session.add(cart)
         db.session.commit()
-        return marshal(cart, cart_fields), 201
+        # return marshal(cart, cart_fields), 201
+        return {"message":f"{product.name} added to cart successfully"}, 201
     
     @roles_required('user')
     def delete(self, id):

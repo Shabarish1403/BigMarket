@@ -67,7 +67,8 @@ from application.api import *
 api.add_resource(UserAPI, "/api/getuser", "/api/adduser")
 api.add_resource(CategoryAPI, "/api/categories", "/api/category/<int:id>", "/api/addcategory")
 api.add_resource(ProductAPI, "/api/products","/api/product/<int:id>","/api/addproduct")
-api.add_resource(PurchaseAPI, "/api/purchases","/api/purchase/<int:id>","/api/purchase")
+api.add_resource(PurchaseAPI, "/api/purchases","/api/addpurchase")
+api.add_resource(CartAPI, "/api/carts", "/api/cart/<int:id>", "/api/addtocart/<int:product_id>")
 
 if __name__ == '__main__':
     app.run()

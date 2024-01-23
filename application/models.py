@@ -42,6 +42,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     unit = db.Column(db.String, nullable=False)
     availability = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, default=1)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     purchases = db.relationship('Purchase',backref='product')
     carts = db.relationship('Cart',backref='product')
