@@ -107,9 +107,6 @@ class UserAPI(Resource):
         password = args.get('password',None)
         confirmPassword = args.get('confirmPassword',None)
         role = args.get('role',None)
-        print(role)
-        if password != confirmPassword:
-            return {"message":"Password does not match"}, 400
         if role == 'manager':
             active = 0
         else:
@@ -120,6 +117,8 @@ class UserAPI(Resource):
         user_exist = User.query.filter_by(email=email).first()
         if user_exist:
             return {"message":"Email already exists"},400
+        if password != confirmPassword:
+            return {"message":"Password does not match"}, 400
         user = User(email=email, username=username, name=name, password=hash_password(password), active=active, fs_uniquifier=fs_uniquifier)
         user_role = Role.query.filter_by(name=role).first()
         user.roles.append(user_role)
@@ -288,30 +287,6 @@ class ProductAPI(Resource):
         product.category_id = category_id
         db.session.commit()
         return marshal(product, product_fields), 200        
-
-class PurchaseAPI(Resource):
-    @roles_required('user')
-    def get(self):
-        purchases = Purchase.query.filter_by(user_id=current_user.id).all()
-        return marshal(purchases, purchase_fields), 200
-    
-    @roles_required('user')
-    def post(self):
-        args = purchase_parser.parse_args()
-        user_id = current_user.id
-        product_id = args.get('product_id',None)
-        quantity = args.get('quantity',None)
-        if any(field is None for field in (user_id, product_id, quantity)):
-            return {"message":"One or more fields are empty"}, 400
-        product = Product.query.get(product_id)
-        if not product:
-            return {"message":"Product not exists"}, 400
-        if product.availability < int(quantity):
-            return {"message":"The selected quantity is more than the available stock"}, 400
-        purchase = Purchase(user_id=user_id, product_id=product_id, quantity=quantity)
-        db.session.add(purchase)
-        db.session.commit()
-        return marshal(purchase, purchase_fields), 201
     
 class CartAPI(Resource):
     @roles_required('user')
@@ -371,3 +346,29 @@ class CartAPI(Resource):
         cart.quantity = quantity
         db.session.commit()
         return marshal(cart, cart_fields), 200
+    
+class PurchaseAPI(Resource):
+    @roles_required('user')
+    def get(self):
+        purchases = Purchase.query.filter_by(user_id=current_user.id).all()
+        return marshal(purchases, purchase_fields), 200
+    
+    @roles_required('user')
+    def post(self):
+        args = purchase_parser.parse_args()
+        user_id = current_user.id
+        product_id = args.get('product_id',None)
+        quantity = args.get('quantity',None)
+        print(product_id,quantity)
+        if any(field is None for field in (user_id, product_id, quantity)):
+            return {"message":"One or more fields are empty"}, 400
+        product = Product.query.get(product_id)
+        if not product:
+            return {"message":"Product not exists"}, 400
+        if product.availability < int(quantity):
+            return {"message":"The selected quantity is more than the available stock"}, 400
+        purchase = Purchase(user_id=user_id, product_id=product_id, quantity=quantity)
+        db.session.add(purchase)
+        product.availability -= int(quantity)
+        db.session.commit()
+        return marshal(purchase, purchase_fields), 201
