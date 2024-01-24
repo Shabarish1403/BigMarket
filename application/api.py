@@ -232,7 +232,7 @@ class ProductAPI(Resource):
     def post(self):
         args = product_parser.parse_args()
         name = args.get('name',None)
-        expiry = datetime.strptime(args.get('expiry',None),'%d/%m/%Y')
+        expiry = datetime.strptime(args.get('expiry',None),'%Y-%m-%d')
         # expiry = args.get('expiry',None)
         price = args.get('price',None)
         unit = args.get('unit',None)
