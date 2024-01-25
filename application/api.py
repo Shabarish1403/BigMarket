@@ -91,9 +91,10 @@ class UserAPI(Resource):
     @auth_required('token')
     def get(self):
         role = current_user.roles[0].name
-        if role == 'admin':
-            pending_managers = User.query.filter_by(active=False).all()
-            return marshal(pending_managers, user_fields), 200
+        print(role)
+        # if role == 'admin':
+        #     pending_managers = User.query.filter_by(active=False).all()
+        #     return marshal(pending_managers, user_fields), 200
         user = User.query.filter_by(email=current_user.email).first()
         if not user:
             return {"message":"Invalid email"}, 404
@@ -137,10 +138,6 @@ class UserAPI(Resource):
     
 class CategoryAPI(Resource):
     def get(self, id=None):
-        # role = current_user.roles[0].name
-        # if role == 'admin' and id is None:
-        #     categories = Category.query.filter_by(active=False).all()
-        #     return marshal(categories, category_fields), 200
         if id is None:
             categories = Category.query.filter_by(active=True).all()
             return marshal(categories, category_fields), 200
@@ -214,7 +211,8 @@ class CategoryAPI(Resource):
         category.name = name
         category.active = 1
         db.session.commit()
-        return marshal(category, category_fields), 200
+        # return marshal(category, category_fields), 200
+        return {"message":f"Category {category.name} approved"}, 200
     
 class ProductAPI(Resource):
     def get(self, id=None):
@@ -266,7 +264,7 @@ class ProductAPI(Resource):
             return {"message":"Invalid ID"}, 404
         args = product_parser.parse_args()
         name = args.get('name',None)
-        expiry = datetime.strptime(args.get('expiry',None),'%d/%m/%Y')
+        expiry = datetime.strptime(args.get('expiry',None),'%Y-%m-%d')
         price = args.get('price',None)
         unit = args.get('unit',None)
         availability = args.get('availability',None)
@@ -372,3 +370,17 @@ class PurchaseAPI(Resource):
         product.availability -= int(quantity)
         db.session.commit()
         return marshal(purchase, purchase_fields), 201
+
+approval_fields = {
+    'pending_managers': fields.Nested(user_fields),
+    'pending_categories': fields.Nested(category_fields)
+}
+
+class AdminAPI(Resource):
+    @roles_required('admin')
+    def get(self):
+        pending_managers = User.query.filter_by(active=False).all()
+        pending_categories = Category.query.filter_by(active=False).all()
+        response = {'pending_managers':pending_managers,'pending_categories':pending_categories}
+        return marshal(response, approval_fields), 200
+ 
