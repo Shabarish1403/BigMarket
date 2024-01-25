@@ -9,13 +9,13 @@ def export():
     return str(job), 200
 
 # Views
-@app.route("/")
-@auth_required()
-def home():
-    return render_template_string('Hello! hola hola')
-
-@app.route("/user")
+# @app.route("/")
 # @auth_required()
-@roles_required("user")
-def user_home():
-    return render_template_string("Hello {{ current_user.email }} you are a user!")
+# def home():
+#     return render_template_string('Hello! hola hola')
+
+# @app.route("/user")
+# # @auth_required()
+# @roles_required("user")
+# def user_home():
+#     return render_template_string("Hello {{ current_user.email }} you are a user!")

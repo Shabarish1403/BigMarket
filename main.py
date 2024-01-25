@@ -64,11 +64,11 @@ app,api,celery, cache = create_app()
 from application.controllers import *
 from application.api import *
 
-api.add_resource(UserAPI, "/api/getuser", "/api/adduser","/api/user/<int:id>")
-api.add_resource(CategoryAPI, "/api/categories", "/api/category/<int:id>", "/api/addcategory")
-api.add_resource(ProductAPI, "/api/products","/api/product/<int:id>","/api/addproduct")
-api.add_resource(PurchaseAPI, "/api/purchases","/api/addpurchase")
-api.add_resource(CartAPI, "/api/carts", "/api/cart/<int:id>", "/api/addtocart/<int:product_id>")
+api.add_resource(UsersAPI, "/api/getuser", "/api/adduser","/api/user/<int:id>")
+api.add_resource(CategoriesAPI, "/api/categories", "/api/category/<int:id>", "/api/addcategory")
+api.add_resource(ProductsAPI, "/api/products","/api/product/<int:id>","/api/addproduct")
+api.add_resource(PurchasesAPI, "/api/purchases","/api/addpurchase")
+api.add_resource(CartsAPI, "/api/carts", "/api/cart/<int:id>", "/api/addtocart/<int:product_id>")
 api.add_resource(AdminAPI,'/api/admin')
 
 if __name__ == '__main__':

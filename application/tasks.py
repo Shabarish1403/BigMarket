@@ -24,27 +24,35 @@ def setup_periodic_tasks(sender, **kwargs):
 
 @celery.task()
 def daily_reminder():
-    receiver = "rishikesh.vankayala@gmail.com"
-    subject = 'Daily reminder - Kanban App'
-    body='Please find the below attachment for the pending tasks'
-    yag = yagmail.SMTP(user='rishikesh.vankayala@gmail.com', password='wfkcdtiplzoiqaar')
+    receiver = "deeptha.tirumala@gmail.com"
+    subject = 'Daily reminder - BigMarket'
+    body='Hii, please have a check adn get your requirements done in seconds'
+    yag = yagmail.SMTP(user='deeptha.tirumala@gmail.com', password='nsrl cojd tdxm hyyp')
     yag.send(to=receiver, subject=subject, contents=body)
-    print("daily")
-    return 'Daily reminder sent successfully'
+    # print("daily")
+    return 'Daily reminder successfully sent'
 
 
 
 @celery.task()
 def monthly_report():
-    receiver = "rishikesh.vankayala@gmail.com"
-    subject = 'Daily reminder - Kanban App'
-    body='Please find the below attachment for the pending tasks'
-    yag = yagmail.SMTP(user='rishikesh.vankayala@gmail.com', password='wfkcdtiplzoiqaar')
+    receiver = "deeptha.tirumala@gmail.com"
+    subject = 'Daily reminder - BigMarket'
+    body='Please find the Monthly report for this month'
+    yag = yagmail.SMTP(user='deeptha.tirumala@gmail.com', password='nsrl cojd tdxm hyyp')
     yag.send(to=receiver, subject=subject, contents=body)
-    print("daily")
+    # print("daily")
     return 'Monthly report sent successfully'
     
 @celery.task()
 def export():
     print("test")
     return 'exported'
+
+
+# redis
+# redis-server "C:\Program Files\Redis\redis.windows.conf"
+# & "C:\Program Files\Redis\redis-server.exe" "C:\Program Files\Redis\redis.windows.conf"
+# celery
+# python -m celery -A main.celery worker -l info -P solo
+# python -m celery -A main.celery beat --max-interval 1 -l info

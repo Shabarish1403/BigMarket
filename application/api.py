@@ -87,14 +87,11 @@ user_parser.add_argument('password')
 user_parser.add_argument('confirmPassword')
 user_parser.add_argument('role')
 
-class UserAPI(Resource):
+class UsersAPI(Resource):
     @auth_required('token')
     def get(self):
         role = current_user.roles[0].name
         print(role)
-        # if role == 'admin':
-        #     pending_managers = User.query.filter_by(active=False).all()
-        #     return marshal(pending_managers, user_fields), 200
         user = User.query.filter_by(email=current_user.email).first()
         if not user:
             return {"message":"Invalid email"}, 404
@@ -136,7 +133,7 @@ class UserAPI(Resource):
         db.session.commit()
         return {"message":"Manager Signup approval done"}, 200
     
-class CategoryAPI(Resource):
+class CategoriesAPI(Resource):
     def get(self, id=None):
         if id is None:
             categories = Category.query.filter_by(active=True).all()
@@ -214,7 +211,7 @@ class CategoryAPI(Resource):
         # return marshal(category, category_fields), 200
         return {"message":f"Category {category.name} approved"}, 200
     
-class ProductAPI(Resource):
+class ProductsAPI(Resource):
     def get(self, id=None):
         if id is None:
             products = Product.query.all()
@@ -286,7 +283,7 @@ class ProductAPI(Resource):
         db.session.commit()
         return marshal(product, product_fields), 200        
     
-class CartAPI(Resource):
+class CartsAPI(Resource):
     @roles_required('user')
     def get(self):
         carts = Cart.query.filter_by(user_id=current_user.id).all()
@@ -345,7 +342,7 @@ class CartAPI(Resource):
         db.session.commit()
         return marshal(cart, cart_fields), 200
     
-class PurchaseAPI(Resource):
+class PurchasesAPI(Resource):
     @roles_required('user')
     def get(self):
         purchases = Purchase.query.filter_by(user_id=current_user.id).all()
