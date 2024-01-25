@@ -1,0 +1,8 @@
+{
+  "name": "Your Dev Container Name",
+  "extensions": [
+    // List of VS Code extensions to install, if needed
+  ],
+  "forwardPorts": [6379],  // Redis default port
+  "postCreateCommand": "docker run --name my-redis-container -p 6379:6379 -d redis"
+}
